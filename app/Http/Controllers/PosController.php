@@ -8,6 +8,7 @@ use App\Models\Venta;
 use App\Models\DetalleVenta;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Historial;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PosController extends Controller
 {
@@ -122,6 +123,27 @@ class PosController extends Controller
             'descripcion' => 'Realizó una venta en Caja por un total de $' . number_format($total, 2) . ' (Ticket #' . $venta->id . ')'
         ]);
 
+        // Busca esta línea al final de tu función cobrar()
+        return redirect()->route('pos.index')
+            ->with('success', 'Venta registrada correctamente.')
+            ->with('venta_id', $venta->id); // <--- AGREGAR ESTA PARTE
+
         return redirect()->route('pos.index')->with('success', '¡Venta procesada con éxito! Ticket #' . $venta->id);
+    }
+
+        // Generar Ticket en PDF
+    public function generarTicket(Venta $venta)
+    {
+        // Cargamos la venta con sus detalles y el usuario que cobró
+        $venta->load(['user', 'detalles.producto']);
+
+        // Le decimos al PDF qué vista usar
+        $pdf = Pdf::loadView('pos.ticket', compact('venta'));
+
+        // Configuramos el tamaño del papel (Estilo ticket de maquinita: ancho 80mm)
+        $pdf->setPaper([0, 0, 226, 500], 'portrait');
+
+        // Esto abre el PDF directamente en el navegador
+        return $pdf->stream('Ticket_Venta_' . $venta->id . '.pdf');
     }
 }

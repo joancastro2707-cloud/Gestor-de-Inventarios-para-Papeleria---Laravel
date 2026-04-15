@@ -72,8 +72,14 @@
                 <h3 class="text-lg font-bold mb-4 text-gray-700 border-b pb-2">Ticket Actual</h3>
 
                 @if(session('success'))
-                    <div class="bg-green-100 text-green-700 p-3 rounded mb-4 text-sm font-bold text-center">
-                        ✅ {{ session('success') }}
+                    <div class="bg-green-100 text-green-700 p-4 rounded-lg mb-4 shadow-sm text-center border border-green-300">
+                        <p class="font-bold text-lg">✅ {{ session('success') }}</p>
+                        
+                        @if(session('venta_id'))
+                            <a href="{{ route('pos.ticket', session('venta_id')) }}" target="_blank" class="inline-block mt-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded shadow transition">
+                                🖨️ Imprimir Ticket PDF
+                            </a>
+                        @endif
                     </div>
                 @endif
 

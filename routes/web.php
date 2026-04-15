@@ -36,6 +36,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/productos/{producto}/editar', 'edit')->name('productos.edit');
         Route::put('/productos/{producto}', 'update')->name('productos.update');
         Route::delete('/productos/{producto}', 'destroy')->name('productos.destroy');
+        Route::get('/pos/ticket/{venta}', [PosController::class, 'generarTicket'])->name('pos.ticket');
     });
 
     Route::controller(PosController::class)->group(function () {
