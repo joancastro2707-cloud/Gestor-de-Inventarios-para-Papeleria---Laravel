@@ -1,3 +1,4 @@
+
 <?php
 
 use App\Http\Controllers\ProfileController;
@@ -9,15 +10,25 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\ReporteController;
 use Illuminate\Support\Facades\Route;
 
-// --- RUTA PÚBLICA ---
+
+//* --- RUTA PÚBLICA ---
 Route::get('/', function () {
     return view('welcome');
 });
 
-// --- RUTAS PROTEGIDAS (Solo para usuarios logueados) ---
+
+//* --- RUTAS DE AUTENTICACIÓN 2FA ---
+Route::get('/two-factor-challenge', [\App\Http\Controllers\Auth\TwoFactorChallengeController::class, 'create'])
+    ->name('2fa.challenge');
+
+Route::post('/two-factor-challenge', [\App\Http\Controllers\Auth\TwoFactorChallengeController::class, 'store'])
+    ->name('2fa.challenge.store');
+
+
+//* --- RUTAS PROTEGIDAS (Solo para usuarios logueados) ---
 Route::middleware(['auth', 'verified'])->group(function () {
-    
-    // 1. PANEL PRINCIPAL Y PERFIL (Accesible por todos)
+
+    //* 1. PANEL PRINCIPAL Y PERFIL (Accesible por todos)
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
@@ -28,7 +39,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/profile', 'destroy')->name('profile.destroy');
     });
 
-    // 2. OPERACIÓN DIARIA: INVENTARIO Y POS (Accesible por todos)
+
+    //* --- CONFIGURACIÓN DE AUTENTICACIÓN 2FA ---
+    Route::get('/profile/two-factor', [\App\Http\Controllers\Auth\TwoFactorController::class, 'show'])
+        ->name('2fa.setup');
+
+    Route::post('/profile/two-factor', [\App\Http\Controllers\Auth\TwoFactorController::class, 'confirm'])
+        ->name('2fa.confirm');
+
+    Route::delete('/profile/two-factor', [\App\Http\Controllers\Auth\TwoFactorController::class, 'disable'])
+        ->name('2fa.disable');
+
+
+    //* 2. OPERACIÓN DIARIA: INVENTARIO Y POS (Accesible por todos)
     Route::controller(ProductoController::class)->group(function () {
         Route::get('/productos', 'index')->name('productos.index');
         Route::get('/productos/crear', 'create')->name('productos.create');
@@ -47,23 +70,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
 
-    // 3. SECCIÓN DE ALTA SEGURIDAD (Solo Administradores)
-    // Este filtro "can:admin" o validación de rol bloquea a los vendedores de raíz
-    // 3. SECCIÓN DE ALTA SEGURIDAD (Solo Administradores)
-    // Usamos el alias 'admin' que acabamos de registrar
+    //* 3. SECCIÓN DE ALTA SEGURIDAD (Solo Administradores)
     Route::middleware(['admin'])->group(function () {
-        
-        // Gestión de Personal
+
+        //* Gestión de Personal
         Route::resource('usuarios', UsuarioController::class);
 
-        // Registro de Usuarios (Privatizado para el Admin)
+        //* Registro de Usuarios (Privatizado para el Admin)
         Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
         Route::post('register', [RegisteredUserController::class, 'store']);
 
-        // Historial y Reportes
+        //* Historial y Reportes
         Route::get('/historial', [HistorialController::class, 'index'])->name('historial.index');
         Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index');
     });
+
 });
 
 require __DIR__.'/auth.php';

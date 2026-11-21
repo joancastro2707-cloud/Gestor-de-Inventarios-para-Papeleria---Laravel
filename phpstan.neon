@@ -1,0 +1,14 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app/
+    level: 5
+    ignoreErrors:
+        -
+            identifier: argument.type
+            path: app/Http/Controllers/Auth/VerifyEmailController.php
+        -
+            identifier: deadCode.unreachable
+            path: app/Http/Controllers/PosController.php

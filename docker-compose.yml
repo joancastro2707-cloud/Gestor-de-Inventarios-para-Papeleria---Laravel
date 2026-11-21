@@ -1,0 +1,73 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: papeleria-pos-app:latest
+    container_name: papeleria_app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    env_file:
+      - .env
+    volumes:
+      - ./.env:/var/www/html/.env
+      - storage_data:/var/www/html/storage
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - papeleria_net
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: papeleria_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./public:/var/www/html/public:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ssl_certs:/etc/nginx/certs
+    entrypoint: ["sh", "-c", "apk add --no-cache openssl && mkdir -p /etc/nginx/certs && [ -f /etc/nginx/certs/selfsigned.crt ] || openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/certs/selfsigned.key -out /etc/nginx/certs/selfsigned.crt -subj '/C=MX/ST=EstadoDeMexico/L=Texcoco/O=PapeleriaPOS/CN=localhost' && nginx -g 'daemon off;'"]
+    depends_on:
+      - app
+    networks:
+      - papeleria_net
+
+  db:
+    image: mysql:8.0
+    container_name: papeleria_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: papeleria_db
+      MYSQL_USER: papeleria_user
+      MYSQL_PASSWORD: secret_password
+      MYSQL_ROOT_PASSWORD: root_secret_password
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_secret_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - papeleria_net
+
+  redis:
+    image: redis:7-alpine
+    container_name: papeleria_redis
+    restart: unless-stopped
+    networks:
+      - papeleria_net
+
+volumes:
+  db_data:
+  storage_data:
+  ssl_certs:
+
+networks:
+  papeleria_net:
+    driver: bridge

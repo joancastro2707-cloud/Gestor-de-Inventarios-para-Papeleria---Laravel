@@ -1,0 +1,210 @@
+{
+  "info": {
+    "name": "Papelería POS - API RESTful",
+    "_postman_id": "a1b2c3d4-8888-4444-9999-papeleria2026",
+    "description": "Colección de pruebas automatizadas para API RESTful con Sanctum y los 5 verbos HTTP.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "https://localhost" },
+    { "key": "token", "value": "" },
+    { "key": "producto_id", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "1. Login API (POST)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code es 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Respuesta contiene access_token', function () { var json = pm.response.json(); pm.expect(json).to.have.property('access_token'); pm.collectionVariables.set('token', json.access_token); });",
+              "pm.test('Tipo de token es Bearer', function () { pm.expect(pm.response.json().token_type).to.eql('Bearer'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"admin@papeleria.com\",\n  \"password\": \"password123\",\n  \"device_name\": \"Postman\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{base_url}}/api/login"
+      }
+    },
+    {
+      "name": "2. Listar Productos (GET)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code es 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Respuesta es JSON válido con arreglo data', function () { pm.expect(pm.response.json().data).to.be.an('array'); });",
+              "pm.test('Incluye contador total', function () { pm.expect(pm.response.json()).to.have.property('total'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}" }] },
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": "{{base_url}}/api/productos"
+      }
+    },
+    {
+      "name": "3. Crear Producto (POST)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code es 201 Created', function () { pm.response.to.have.status(201); });",
+              "pm.test('Producto creado contiene ID y código generado', function () { var d = pm.response.json().data; pm.expect(d).to.have.property('id'); pm.expect(d).to.have.property('codigo_producto'); pm.collectionVariables.set('producto_id', d.id); });",
+              "pm.test('Nombre coincide con el enviado', function () { pm.expect(pm.response.json().data.nombre).to.eql('Cuaderno Profesional'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}" }] },
+        "method": "POST",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Cuaderno Profesional\",\n  \"marca\": \"Scribe\",\n  \"stock\": 50,\n  \"precio\": 35.50,\n  \"stock_minimo\": 10,\n  \"stock_maximo\": 100\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{base_url}}/api/productos"
+      }
+    },
+    {
+      "name": "4. Ver Producto por ID (GET)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code es 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Devuelve el producto solicitado', function () { pm.expect(pm.response.json().data.id).to.eql(Number(pm.collectionVariables.get('producto_id'))); });",
+              "pm.test('Contiene precio y stock', function () { var d = pm.response.json().data; pm.expect(d).to.have.property('precio'); pm.expect(d).to.have.property('stock'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}" }] },
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": "{{base_url}}/api/productos/{{producto_id}}"
+      }
+    },
+    {
+      "name": "5. Actualizar Producto Completo (PUT)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code es 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Nombre actualizado correctamente', function () { pm.expect(pm.response.json().data.nombre).to.eql('Cuaderno Profesional Raya'); });",
+              "pm.test('Stock actualizado a 45', function () { pm.expect(Number(pm.response.json().data.stock)).to.eql(45); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}" }] },
+        "method": "PUT",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Cuaderno Profesional Raya\",\n  \"marca\": \"Scribe\",\n  \"stock\": 45,\n  \"precio\": 38.00,\n  \"stock_minimo\": 10,\n  \"stock_maximo\": 100\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{base_url}}/api/productos/{{producto_id}}"
+      }
+    },
+    {
+      "name": "6. Actualizar Precio Parcial (PATCH)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code es 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Precio actualizado parcialmente a 42.00', function () { pm.expect(Number(pm.response.json().data.precio)).to.eql(42); });",
+              "pm.test('Tiempo de respuesta menor a 1000ms', function () { pm.expect(pm.response.responseTime).to.be.below(1000); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}" }] },
+        "method": "PATCH",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"precio\": 42.00\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{base_url}}/api/productos/{{producto_id}}"
+      }
+    },
+    {
+      "name": "7. Eliminar Producto (DELETE)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code es 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Mensaje de eliminación confirmado', function () { pm.expect(pm.response.json().message).to.include('eliminado'); });",
+              "pm.test('Content-Type es application/json', function () { pm.response.to.have.header('Content-Type'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}" }] },
+        "method": "DELETE",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": "{{base_url}}/api/productos/{{producto_id}}"
+      }
+    },
+    {
+      "name": "8. Logout API - Revocar Token (POST)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code es 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Mensaje de revocación presente', function () { pm.expect(pm.response.json().message).to.include('revocado'); });",
+              "pm.test('Limpiar token local', function () { pm.collectionVariables.set('token', ''); pm.expect(pm.collectionVariables.get('token')).to.eql(''); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}" }] },
+        "method": "POST",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": "{{base_url}}/api/logout"
+      }
+    }
+  ]
+}

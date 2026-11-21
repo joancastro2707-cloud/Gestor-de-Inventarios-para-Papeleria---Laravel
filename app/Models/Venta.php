@@ -1,18 +1,22 @@
 <?php
+
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Venta extends Model
 {
     protected $fillable = ['user_id', 'total'];
 
-    // Relación: Una venta le pertenece a un Usuario (Cajero)
-    public function user() {
+    public function user(): BelongsTo
+    {
         return $this->belongsTo(User::class);
     }
 
-    // Relación: Una venta tiene muchos detalles (productos)
-    public function detalles() {
+    public function detalles(): HasMany
+    {
         return $this->hasMany(DetalleVenta::class);
     }
 }

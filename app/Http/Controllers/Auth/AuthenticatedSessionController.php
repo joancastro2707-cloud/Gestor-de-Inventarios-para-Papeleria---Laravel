@@ -26,6 +26,17 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
+        $user = $request->user();
+
+        if ($user->google2fa_enabled && $user->google2fa_secret) {
+            Auth::guard('web')->logout();
+
+            $request->session()->put('2fa:user:id', $user->id);
+            $request->session()->put('2fa:remember', $request->boolean('remember'));
+
+            return redirect()->route('2fa.challenge');
+        }
+
         $request->session()->regenerate();
 
         return redirect()->intended(route('dashboard', absolute: false));

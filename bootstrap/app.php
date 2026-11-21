@@ -7,15 +7,26 @@ use Illuminate\Foundation\Configuration\Middleware;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    // Si es en bootstrap/app.php:
-->withMiddleware(function (Middleware $middleware) {
-    $middleware->alias([
-        'admin' => \App\Http\Middleware\CheckAdmin::class,
-    ]);
-})
-    ->withExceptions(function (Exceptions $exceptions): void {
+    ->withMiddleware(function (Middleware $middleware) {
+        $middleware->trustProxies(at: '*');
+
+        $middleware->validateCsrfTokens(except: [
+            'login',
+            'logout',
+            'api/*',
+        ]);
+
+        $middleware->alias([
+            'admin' => \App\Http\Middleware\CheckAdmin::class,
+            '2fa' => \App\Http\Middleware\EnsureTwoFactorIsVerified::class,
+        ]);
+
+        $middleware->append(\App\Http\Middleware\SecurityHeadersMiddleware::class);
+    })
+    ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();

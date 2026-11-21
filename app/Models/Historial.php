@@ -1,13 +1,16 @@
 <?php
+
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Historial extends Model
 {
     protected $fillable = ['user_id', 'tipo_accion', 'descripcion'];
 
-    // Relación: Un registro del historial le pertenece a un Usuario
-    public function user() {
+    public function user(): BelongsTo
+    {
         return $this->belongsTo(User::class);
     }
 }
