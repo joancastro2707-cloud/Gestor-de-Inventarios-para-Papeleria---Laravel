@@ -72,7 +72,7 @@
                                 <img src="{{ asset($producto->imagen_url) }}" class="w-20 h-20 object-cover rounded shadow">
                             @endif
                             <div class="flex-1">
-                                <input type="file" name="imagen" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                                <input type="file" name="imagen" accept="image/*" capture="environment" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
                                 <p class="text-xs text-gray-400 mt-1 italic">Sube una nueva foto solo si deseas cambiar la actual.</p>
                             </div>
                         </div>
