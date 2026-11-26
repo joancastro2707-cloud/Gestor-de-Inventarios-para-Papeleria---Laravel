@@ -67,7 +67,7 @@
 
                     <div class="mb-8">
                         <label class="block text-gray-700 font-bold mb-2">Fotografía del Producto (Opcional)</label>
-                        <input type="file" name="imagen" accept="image/*" capture="environment" class="w-full border border-gray-300 p-2 rounded-md bg-gray-50">
+                        <input type="file" name="imagen" accept="image/*" class="w-full border border-gray-300 p-2 rounded-md bg-gray-50">
                         <p class="text-xs text-gray-500 mt-1">Solo formatos .jpg o .png permitidos.</p>
                     </div>
 
