@@ -144,6 +144,6 @@ class PosController extends Controller
         $pdf->setPaper([0, 0, 226, 500], 'portrait');
 
         // Esto abre el PDF directamente en el navegador
-        return $pdf->stream('Ticket_Venta_' . $venta->id . '.pdf');
+        return $pdf->download('Ticket_Venta_' . $venta->id . '.pdf');
     }
 }

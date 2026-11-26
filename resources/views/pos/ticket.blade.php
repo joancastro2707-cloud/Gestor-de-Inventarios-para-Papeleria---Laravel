@@ -5,7 +5,7 @@
     <title>Ticket de Venta #{{ $venta->id }}</title>
     <style>
         body {
-            font-family: 'Courier New', Courier, monospace; /* Fuente de ticket real */
+            font-family: 'Courier New', Courier, monospace;
             font-size: 12px;
             margin: 0;
             padding: 10px;
@@ -28,7 +28,7 @@
         <h2 style="margin: 0;">Papelería Vanguard-IA</h2>
         <p style="margin: 5px 0 0 0; font-size: 10px;"><i>"Toda una papelería al mejor precio"</i></p>
         <p style="margin: 10px 0 0 0;">Ticket #: <b>{{ str_pad($venta->id, 6, '0', STR_PAD_LEFT) }}</b></p>
-        <p style="margin: 2px 0;">Fecha: {{ $venta->created_at->format('d/m/Y H:i') }}</p>
+        <p style="margin: 2px 0;">Fecha: {{ $venta->created_at->timezone('America/Mexico_City')->format('d/m/Y H:i') }}</p>
         <p style="margin: 2px 0;">Le atendió: {{ $venta->user->name ?? 'Cajero' }}</p>
     </div>
 
@@ -46,7 +46,7 @@
                 <td style="vertical-align: top;">{{ $detalle->cantidad }}</td>
                 <td>
                     {{ $detalle->producto->nombre }} <br>
-                    <small>{{ $detalle->producto->marca }}</small>
+                    <small>{{ $detalle->producto->marca }} ({{ $detalle->producto->unidad_medida ?? 'Pieza' }})</small>
                 </td>
                 <td class="text-right" style="vertical-align: top;">
                     ${{ number_format($detalle->cantidad * $detalle->producto->precio, 2) }}

@@ -12,6 +12,7 @@ class Producto extends Model
     protected $fillable = [
         'nombre',
         'marca',
+        'unidad_medida',
         'stock',
         'precio',
         'imagen_url',
